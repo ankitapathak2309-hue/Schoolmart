@@ -531,7 +531,7 @@ export default function SchoolMart() {
           <div style={{ background: "white", borderRadius: 10, padding: "6px 10px", fontSize: 20 }}>🎒</div>
           <div>
             <div style={{ color: "white", fontWeight: 800, fontSize: 18 }}>mySchoolKart</div>
-            <div style={{ color: "rgba(255,255,255,0.75)", fontSize: 10 }}>School Supplies · Mumbai</div>
+            <div style={{ color: "rgba(255,255,255,0.75)", fontSize: 10 }}>Your School Supplies · Delivered</div>
           </div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
@@ -608,7 +608,7 @@ export default function SchoolMart() {
           <>
             <div style={{ textAlign: "center", padding: "24px 0 20px" }}>
               <h1 style={{ fontSize: 28, fontWeight: 900, color: "#1e1b4b", margin: "0 0 8px" }}>Find Your School 🏫</h1>
-              <p style={{ color: "#6b7280", margin: 0 }}>All Mumbai school supplies in one place</p>
+              <p style={{ color: "#6b7280", margin: 0 }}>Everything your child needs, delivered fast</p>
             </div>
             <div style={{ position: "relative", marginBottom: 16 }}>
               <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)" }}>🔍</span>
