@@ -530,7 +530,7 @@ export default function SchoolMart() {
           onClick={() => { setScreen("home"); setSelectedSchool(null); setSelectedBranch(null); setSelectedGrade(null); setSelectedCategory(null); setSelectedItem(null); setError(null); setSupplyItems([]); setVendorProducts([]); }}>
           <div style={{ background: "white", borderRadius: 10, padding: "6px 10px", fontSize: 20 }}>🎒</div>
           <div>
-            <div style={{ color: "white", fontWeight: 800, fontSize: 18 }}>KitBag</div>
+            <div style={{ color: "white", fontWeight: 800, fontSize: 18 }}>mySchoolKart</div>
             <div style={{ color: "rgba(255,255,255,0.75)", fontSize: 10 }}>School Supplies · Mumbai</div>
           </div>
         </div>
