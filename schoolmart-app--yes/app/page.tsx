@@ -24,7 +24,8 @@ type Category = { id: number; name: string; icon: string; display_order: number 
 type SupplyItem = { id: number; item_name: string; quantity_required: number; unit: string | null; mandatory: boolean; category_id: number };
 type VendorInfo = { id: number; vendor_name: string; rating: number | null; area: string; avg_delivery_time: number | null; logo_url: string | null };
 type ProductImage = { image_url: string; is_primary: boolean };
-type VendorProduct = { id: number; vendor_id: number; product_name: string; price: number; mrp: number | null; stock_quantity: number; vendors: VendorInfo; product_images: ProductImage[] };
+type Subcategory = { id: number; name: string; icon: string | null };
+type VendorProduct = { id: number; vendor_id: number; product_name: string; price: number; mrp: number | null; stock_quantity: number; subcategory_id: number | null; school_id: number | null; grade_id: number | null; vendors: VendorInfo; product_images: ProductImage[]; subcategories: Subcategory | null };
 type CartItem = { vendorProductId: number; itemName: string; vendorName: string; price: number; qty: number; image?: string | null };
 type AppError = { message: string; retryFn?: () => void };
 
@@ -133,8 +134,10 @@ async function queryVendorProducts(supplyItemId: number): Promise<VendorProduct[
     .from("vendor_products")
     .select(`
       id, vendor_id, product_name, price, mrp, stock_quantity,
+      subcategory_id, school_id, grade_id,
       vendors!inner(id, vendor_name, rating, area, avg_delivery_time, logo_url),
-      product_images(image_url, is_primary)
+      product_images(image_url, is_primary),
+      subcategories(id, name, icon)
     `)
     .eq("supply_item_id", supplyItemId)
     .eq("is_active", true)
