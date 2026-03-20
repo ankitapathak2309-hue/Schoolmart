@@ -18,7 +18,6 @@ export default function AddProduct() {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
   const [vendorId, setVendorId] = useState(null);
-
   const [form, setForm] = useState({
     category_id: "", subcategory_id: "",
     product_name: "", description: "",
@@ -27,8 +26,8 @@ export default function AddProduct() {
   });
 
   useEffect(() => {
-    // FIX 1 — Read vendor_id from localStorage
     const storedVendorId = localStorage.getItem("vendor_id");
+    if (!storedVendorId) {
       setError("Vendor not authenticated. Please login first.");
     } else {
       setVendorId(Number(storedVendorId));
@@ -75,36 +74,23 @@ export default function AddProduct() {
 
   const validate = () => {
     setError("");
-
-    // FIX 3 — Safety checks before insert
-      setError("Vendor not authenticated. Please login first.");
-      return false;
-    }
-      setError("Please select a category");
-      return false;
-    }
-      setError("Please select a subcategory");
-      return false;
-    }
-      setError("Product name is required");
-      return false;
-    }
-      setError("Valid price is required");
-      return false;
-    }
-      setError("Valid stock quantity required");
-      return false;
-    }
+    if (!vendorId) { setError("Vendor not authenticated. Please login first."); return false; }
+    if (!form.category_id) { setError("Please select a category"); return false; }
+    if (!form.subcategory_id) { setError("Please select a subcategory"); return false; }
+    if (!form.product_name.trim()) { setError("Product name is required"); return false; }
+    if (!form.price || Number(form.price) <= 0) { setError("Valid price is required"); return false; }
+    if (!form.stock_quantity || Number(form.stock_quantity) < 0) { setError("Valid stock quantity required"); return false; }
     return true;
   };
 
   const handleSubmit = async () => {
+    if (!validate()) return;
     setSaving(true);
     setError("");
     try {
       const { error: insertError } = await supabase.from("vendor_products").insert({
-        vendor_id: vendorId,                          // FIX 1 — dynamic vendor_id
-        category_id: Number(form.category_id),        // FIX 2 — save category_id
+        vendor_id: vendorId,
+        category_id: Number(form.category_id),
         subcategory_id: Number(form.subcategory_id),
         product_name: form.product_name.trim(),
         description: form.description.trim() || null,
@@ -118,12 +104,7 @@ export default function AddProduct() {
       });
       if (insertError) throw new Error(insertError.message);
       setSaved(true);
-      setForm(p => ({
-        ...p,
-        product_name: "", description: "",
-        price: "", mrp: "", stock_quantity: "1",
-        subcategory_id: "", school_id: "", grade_id: "",
-      }));
+      setForm(p => ({ ...p, product_name: "", description: "", price: "", mrp: "", stock_quantity: "1", subcategory_id: "", school_id: "", grade_id: "" }));
       await loadData();
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
@@ -151,24 +132,9 @@ export default function AddProduct() {
       </div>
 
       <div style={{maxWidth:700,margin:"0 auto",padding:"24px 16px 80px"}}>
-
-        {saved && (
-          <div style={{background:"#f0fdf4",border:"1px solid #86efac",borderRadius:10,padding:12,marginBottom:16,color:"#16a34a",fontWeight:700,textAlign:"center"}}>
-            ✅ Product added successfully!
-          </div>
-        )}
-
-        {error && (
-          <div style={{background:"#fef2f2",border:"1px solid #fecaca",borderRadius:10,padding:12,marginBottom:16,color:"#dc2626",fontWeight:600,textAlign:"center"}}>
-            {error}
-          </div>
-        )}
-
-          <div style={{background:"#fef9ec",border:"1px solid #fde68a",borderRadius:10,padding:16,marginBottom:16,textAlign:"center"}}>
-            <p style={{color:"#92400e",fontWeight:700,margin:"0 0 8px"}}>⚠️ Vendor not authenticated</p>
-            <p style={{color:"#92400e",fontSize:13,margin:0}}>Please login to your vendor account first.</p>
-          </div>
-        )}
+        {saved && <div style={{background:"#f0fdf4",border:"1px solid #86efac",borderRadius:10,padding:12,marginBottom:16,color:"#16a34a",fontWeight:700,textAlign:"center"}}>✅ Product added!</div>}
+        {error && <div style={{background:"#fef2f2",border:"1px solid #fecaca",borderRadius:10,padding:12,marginBottom:16,color:"#dc2626",fontWeight:600,textAlign:"center"}}>{error}</div>}
+        {!vendorId && <div style={{background:"#fef9ec",border:"1px solid #fde68a",borderRadius:10,padding:16,marginBottom:16,textAlign:"center"}}><p style={{color:"#92400e",fontWeight:700,margin:"0 0 4px"}}>⚠️ Not authenticated</p><p style={{color:"#92400e",fontSize:13,margin:0}}>Please login to your vendor account first.</p></div>}
 
         <div style={{background:"white",borderRadius:16,padding:24,boxShadow:"0 2px 12px rgba(0,0,0,0.08)",marginBottom:24}}>
           <h2 style={{fontWeight:900,color:"#1e1b4b",marginBottom:4,fontSize:20}}>📦 Product Details</h2>
@@ -185,6 +151,7 @@ export default function AddProduct() {
           <div style={{marginBottom:14}}>
             <label style={lbl}>Subcategory *</label>
             <select value={form.subcategory_id} onChange={e=>setForm(p=>({...p,subcategory_id:e.target.value}))}
+              disabled={!form.category_id}
               style={{...sel,opacity:form.category_id?1:0.6,background:form.category_id?"white":"#f8fafc"}}>
               <option value="">{form.category_id?"Select subcategory":"Select category first"}</option>
               {filteredSubs.map(s=><option key={s.id} value={s.id}>{s.icon} {s.name}</option>)}
@@ -200,8 +167,7 @@ export default function AddProduct() {
           <div style={{marginBottom:14}}>
             <label style={lbl}>Description (optional)</label>
             <textarea value={form.description} onChange={e=>setForm(p=>({...p,description:e.target.value}))}
-              placeholder="Brief product description" rows={2}
-              style={{...inp,resize:"none"}}/>
+              placeholder="Brief product description" rows={2} style={{...inp,resize:"none"}}/>
           </div>
 
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:14}}>
@@ -254,6 +220,8 @@ export default function AddProduct() {
             </div>
           </div>
 
+          <button onClick={handleSubmit} disabled={saving || !vendorId}
+            style={{width:"100%",background:(saving||!vendorId)?"#94a3b8":"linear-gradient(135deg,#667eea,#764ba2)",color:"white",border:"none",padding:14,borderRadius:12,fontWeight:800,cursor:(saving||!vendorId)?"not-allowed":"pointer",fontSize:16}}>
             {saving?"Saving...":"✅ Add Product"}
           </button>
         </div>
