@@ -106,7 +106,12 @@ export default function VendorRegister() {
         }
       }
 
+      console.log("Vendor registered:", vendor.id);
+      localStorage.setItem("vendor_id", vendor.id);
       setSubmitted(true);
+      setTimeout(() => {
+        window.location.href = "/vendor/products";
+      }, 1500);
     } catch (err) {
       console.error("[handleSubmit]", err);
       setError(err.message || "Registration failed. Please try again.");
